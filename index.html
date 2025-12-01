@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skill Navigator</title>
+    <meta name="description" content="Generate hyper-curated learning roadmaps on the fly.">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2563eb">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 min-h-screen flex flex-col items-center justify-center p-4">
+
+    <!-- Header -->
+    <header class="text-center mb-8">
+        <h1 class="text-4xl font-bold text-blue-600 mb-2">Skill Navigator</h1>
+        <p class="text-gray-600">Your AI-Powered Learning Roadmap Generator</p>
+    </header>
+
+    <!-- Main Card -->
+    <main class="w-full max-w-md bg-white rounded-2xl shadow-xl overflow-hidden glass border border-gray-100">
+        <div class="p-6">
+
+            <!-- Status / Credits -->
+            <div class="flex justify-between items-center mb-6 text-sm text-gray-500 bg-gray-50 p-3 rounded-lg">
+                <span id="userIdDisplay">User: ...</span>
+                <span class="font-bold text-blue-600 flex items-center gap-1">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path
+                            d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
+                    </svg>
+                    Credits: <span id="creditBalance">2</span>
+                </span>
+            </div>
+
+            <!-- Input Form -->
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Skill to Master</label>
+                    <input type="text" id="skillInput" placeholder="e.g. Python, Digital Marketing"
+                        class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Current Level</label>
+                    <div class="relative">
+                        <select id="levelInput"
+                            class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none appearance-none bg-white">
+                            <option value="Beginner">Beginner</option>
+                            <option value="Intermediate">Intermediate</option>
+                            <option value="Expert">Expert</option>
+                        </select>
+                        <div
+                            class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                            <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <button onclick="generateRoadmap()" id="generateBtn"
+                    class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition-colors shadow-lg flex justify-center items-center gap-2">
+                    <span>Generate Roadmap</span>
+                    <span class="text-xs bg-blue-800 px-2 py-0.5 rounded text-blue-100">1 Credit</span>
+                </button>
+
+                <button onclick="purchaseCredits()"
+                    class="w-full bg-white hover:bg-gray-50 text-blue-600 font-semibold py-2 px-4 rounded-lg border border-blue-200 transition-colors text-sm">
+                    Buy More Credits (₹100)
+                </button>
+            </div>
+
+            <!-- Loading State -->
+            <div id="loadingState" class="hidden mt-6 text-center py-4">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
+                <p class="text-gray-600 text-sm">Curating your personalized roadmap...</p>
+                <p class="text-xs text-gray-400 mt-1">Consulting AI Expert...</p>
+            </div>
+
+            <!-- Error Message -->
+            <div id="errorMessage"
+                class="hidden mt-4 p-3 bg-red-50 text-red-600 text-sm rounded-lg border border-red-100"></div>
+
+            <!-- Result Area -->
+            <div id="resultArea" class="hidden mt-6 pt-6 border-t border-gray-100 text-center">
+                <div class="mb-4 text-green-600 font-medium flex items-center justify-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    Roadmap Ready!
+                </div>
+                <a id="downloadLink" href="#" target="_blank"
+                    class="inline-block bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition-transform hover:scale-105">
+                    Download PDF / HTML
+                </a>
+                <p class="text-xs text-gray-400 mt-2">Link expires in 24 hours</p>
+            </div>
+
+        </div>
+    </main>
+
+    <footer class="mt-8 text-gray-400 text-xs">
+        &copy; 2024 Skill Navigator. All rights reserved.
+    </footer>
+
+    <script>
+        // --- Configuration ---
+        const API_ENDPOINT = "YOUR_API_GATEWAY_URL/generate"; // Replace with actual URL
+        const RAZORPAY_KEY_ID = "YOUR_RAZORPAY_KEY_ID"; // Replace with actual Key ID
+
+        // --- State Management ---
+        let userId = localStorage.getItem('sn_user_id');
+        if (!userId) {
+            userId = 'user_' + Math.random().toString(36).substr(2, 9);
+            localStorage.setItem('sn_user_id', userId);
+        }
+        // In a real app, you'd fetch the initial credit balance from the backend here.
+        let credits = 0;
+
+        // --- UI Initialization ---
+        document.getElementById('userIdDisplay').textContent = `ID: ${userId.substr(0, 6)}...`;
+        document.getElementById('creditBalance').textContent = "Checking...";
+
+        // Fetch initial credits (Optional: You might want a separate API for this)
+        // For now, we'll assume the user might have 0 or we rely on the generate call to tell us.
+        // Let's just set a placeholder or 0.
+        document.getElementById('creditBalance').textContent = credits;
+
+        // --- Core Logic ---
+        async function generateRoadmap() {
+            const skill = document.getElementById('skillInput').value.trim();
+            const level = document.getElementById('levelInput').value;
+            const btn = document.getElementById('generateBtn');
+            const loading = document.getElementById('loadingState');
+            const result = document.getElementById('resultArea');
+            const errorMsg = document.getElementById('errorMessage');
+
+            // Validation
+            if (!skill) {
+                showError("Please enter a skill name.");
+                return;
+            }
+
+            // Reset UI
+            errorMsg.classList.add('hidden');
+            result.classList.add('hidden');
+            btn.disabled = true;
+            btn.classList.add('opacity-50', 'cursor-not-allowed');
+            loading.classList.remove('hidden');
+
+            try {
+                const response = await fetch(API_ENDPOINT, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        user_id: userId,
+                        skill_name: skill,
+                        current_level: level
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.status === 'success') {
+                    credits = data.new_credit_balance;
+                    document.getElementById('creditBalance').textContent = credits;
+
+                    const downloadBtn = document.getElementById('downloadLink');
+                    downloadBtn.href = data.download_url;
+                    downloadBtn.onclick = null; // Remove any previous mock handlers
+
+                    result.classList.remove('hidden');
+                } else {
+                    // Handle specific errors like 402 Payment Required
+                    if (response.status === 402) {
+                        throw new Error("Insufficient credits. Please purchase more.");
+                    }
+                    throw new Error(data.message || "Generation failed. Please try again.");
+                }
+
+            } catch (err) {
+                showError(err.message);
+            } finally {
+                loading.classList.add('hidden');
+                btn.disabled = false;
+                btn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+        }
+
+        function purchaseCredits() {
+            const options = {
+                "key": RAZORPAY_KEY_ID,
+                "amount": "10000", // 100 INR in paise
+                "currency": "INR",
+                "name": "Skill Navigator",
+                "description": "Purchase 1 Credit",
+                "image": "https://via.placeholder.com/128?text=SN",
+                "handler": function (response) {
+                    // Payment Success
+                    // In a real app, you MUST verify the signature on your backend.
+                    // For this MVP, we'll optimistically add the credit or call a backend endpoint to record it.
+                    console.log("Payment ID: " + response.razorpay_payment_id);
+
+                    // Call Backend to record payment and add credit
+                    // await fetch('YOUR_API_GATEWAY_URL/payment_success', { ... })
+
+                    // For now, just alert and increment locally to show UI update
+                    alert("Payment Successful! Credits will be updated.");
+                    credits += 1; // Optimistic update
+                    document.getElementById('creditBalance').textContent = credits;
+                },
+                "prefill": {
+                    "name": "User " + userId.substr(0, 6),
+                    "email": "user@example.com",
+                    "contact": "9999999999"
+                },
+                "theme": {
+                    "color": "#2563eb"
+                }
+            };
+
+            try {
+                const rzp1 = new Razorpay(options);
+                rzp1.on('payment.failed', function (response) {
+                    alert("Payment Failed: " + response.error.description);
+                });
+                rzp1.open();
+            } catch (e) {
+                console.error("Razorpay Error:", e);
+                alert("Could not open payment gateway. Check console.");
+            }
+        }
+
+        function showError(msg) {
+            const el = document.getElementById('errorMessage');
+            el.textContent = msg;
+            el.classList.remove('hidden');
+        }
+
+        // --- PWA Service Worker Registration ---
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('SW registered'))
+                    .catch(err => console.log('SW registration failed', err));
+            });
+        }
+    </script>
+</body>
+
+</html>

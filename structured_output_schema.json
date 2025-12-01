@@ -1,0 +1,64 @@
+{
+  "type": "object",
+  "properties": {
+    "skill_name": {
+      "type": "string",
+      "description": "The name of the skill for which the roadmap is generated."
+    },
+    "current_level": {
+      "type": "string",
+      "enum": ["Beginner", "Intermediate", "Expert"],
+      "description": "The starting level of the user."
+    },
+    "roadmap_steps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "step_number": {
+            "type": "integer",
+            "description": "The sequence number of the step."
+          },
+          "title": {
+            "type": "string",
+            "description": "A concise title for this learning step."
+          },
+          "description": {
+            "type": "string",
+            "description": "A detailed description of what to learn in this step."
+          },
+          "resources": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "description": "Name of the resource (e.g., 'Video Tutorial', 'Documentation')."
+                },
+                "url": {
+                  "type": "string",
+                  "description": "A specific URL to the resource."
+                },
+                "type": {
+                  "type": "string",
+                  "enum": ["Video", "Article", "Course", "Documentation", "Project"],
+                  "description": "The type of resource."
+                }
+              },
+              "required": ["name", "url", "type"]
+            },
+            "description": "List of curated resources for this step."
+          },
+          "estimated_time": {
+            "type": "string",
+            "description": "Estimated time to complete this step (e.g., '2 weeks')."
+          }
+        },
+        "required": ["step_number", "title", "description", "resources", "estimated_time"]
+      },
+      "description": "An ordered list of steps to master the skill."
+    }
+  },
+  "required": ["skill_name", "current_level", "roadmap_steps"]
+}
