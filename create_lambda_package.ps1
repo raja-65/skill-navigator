@@ -10,7 +10,8 @@ Set-Location lambda_package
 Copy-Item ../lambda_handler.py .
 
 # Note: boto3 is already available in AWS Lambda runtime
-# If you need other dependencies, install them here:
+# Note: We use urllib (built-in) for Groq API, so no extra packages needed
+# If you added dependencies to requirements.txt, install them here:
 # pip install -r ../requirements.txt -t .
 
 # Create zip file
@@ -19,5 +20,11 @@ Compress-Archive -Path * -DestinationPath ../lambda_deployment.zip -Force
 
 Set-Location ..
 
-Write-Host "✓ Lambda package created: lambda_deployment.zip" -ForegroundColor Green
-Write-Host "You can now upload this to AWS Lambda" -ForegroundColor Cyan
+$zipSize = (Get-Item lambda_deployment.zip).Length / 1KB
+Write-Host "✓ Lambda package created: lambda_deployment.zip ($([math]::Round($zipSize, 2)) KB)" -ForegroundColor Green
+Write-Host ""
+Write-Host "Next steps:" -ForegroundColor Cyan
+Write-Host "1. Upload lambda_deployment.zip to AWS Lambda"
+Write-Host "2. Set environment variables: GROQ_API_KEY, DYNAMODB_TABLE, S3_BUCKET_NAME"
+Write-Host "3. See API_KEYS_GUIDE.md for where to get API keys"
+

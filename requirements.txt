@@ -1,2 +1,7 @@
-boto3>=1.28.0
-botocore>=1.31.0
+# Lambda Dependencies
+# Note: boto3 and botocore are already included in AWS Lambda runtime
+# No additional packages needed - we use urllib (built-in) for Groq API
+
+# If you want to use the official Groq SDK instead of urllib, uncomment:
+# groq>=0.4.0
+
